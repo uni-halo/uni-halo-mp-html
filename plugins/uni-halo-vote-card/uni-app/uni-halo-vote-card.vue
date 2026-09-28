@@ -203,6 +203,8 @@ export default {
       loadingText: '加载中，请稍等...',
       vote: null,
       voteCountMap: {},
+      // 服务端返回的当前用户已投选项 id（详情接口 userVoteData 字段）
+      userVoteData: [],
       submitForm: { voteData: [] },
       submitLoading: false
     }
@@ -213,7 +215,13 @@ export default {
       return (this.n && this.n.attrs && this.n.attrs.options) || {}
     },
     isVoted () {
-      return voteCache.has(this.voteId)
+      return this.userVoteData.length > 0 || voteCache.has(this.voteId)
+    },
+    /** 已投选项 id：服务端 userVoteData 优先，本地缓存兜底 */
+    votedIds () {
+      if (this.userVoteData.length > 0) return this.userVoteData
+      const cached = voteCache.get(this.voteId)
+      return (cached && cached.selected) || []
     },
     /** 是否展示百分比结果（已投票 或 已结束） */
     showResult () {
@@ -242,21 +250,24 @@ export default {
     showToast (content) {
       uni.showToast({ icon: 'none', title: content, mask: true })
     },
-    // 选项票数百分比（两位小数，与文章卡片一致）
+    // 选项票数百分比（两位小数）；PK 按两阵营票数之和归一化且合计恒为 100（对齐官方 vote-block）
     decorateOptions (vote) {
-      const votedIds = this.isVoted ? (voteCache.get(this.voteId).selected || []) : []
-      return (vote.spec.options || []).map(option => {
-        return Object.assign({}, option, {
-          checked: votedIds.includes(option.id),
-          percent: this.calcPercent(option)
+      const votedIds = this.votedIds
+      const options = (vote.spec.options || []).map(option => Object.assign({}, option, {
+        checked: votedIds.includes(option.id),
+        percent: 0
+      }))
+      if (vote.spec.type === 'pk') {
+        const sum = options.reduce((total, o) => total + (this.voteCountMap[o.id] || 0), 0)
+        const first = sum === 0 ? 50 : Math.round((this.voteCountMap[options[0].id] || 0) / sum * 100)
+        options.forEach((o, index) => { o.percent = index === 0 ? first : 100 - first })
+      } else {
+        const total = (vote.stats && vote.stats.voteCount) || 0
+        options.forEach(o => {
+          o.percent = total === 0 ? 0 : Number(((this.voteCountMap[o.id] || 0) / total * 100).toFixed(2))
         })
-      })
-    },
-    calcPercent (option) {
-      const total = (this.vote && this.vote.stats && this.vote.stats.voteCount) || 0
-      const count = this.voteCountMap[option.id] || 0
-      if (total === 0) return 0
-      return Number(((count / total) * 100).toFixed(2))
+      }
+      return options
     },
     getData () {
       const domain = this.options.domain
@@ -289,6 +300,7 @@ export default {
               if (item.id) map[item.id] = item.voteCount || 0
             })
             this.voteCountMap = map
+            this.userVoteData = body.userVoteData || []
             vote.spec.options = this.decorateOptions(vote)
             this.vote = vote
             this.submitForm.voteData = []
@@ -297,12 +309,12 @@ export default {
             }, 200)
           } else {
             this.loading = 'error'
-            this.loadingText = '投票内容加载失败，点击重试'
+            this.loadingText = '加载失败，点击重试'
           }
         },
         fail: () => {
           this.loading = 'error'
-          this.loadingText = '投票内容加载失败，点击重试'
+          this.loadingText = '加载失败，点击重试'
         }
       })
     },

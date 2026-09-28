@@ -69,8 +69,13 @@ Component({
           if (utils.isSerializableToJSON(res.data)) {
             const voteData = res.data
 
-            voteData.vote.spec.isVoted = this.checkIsVoted()
-            voteData.vote.spec.disabled = this.checkIsVoted()
+            // 已投选项 id：服务端 userVoteData 优先，本地缓存兜底
+            const serverVoted = voteData.userVoteData || []
+            const cached = cache.get(this.data.voteId)
+            const votedIds = serverVoted.length > 0 ? serverVoted : ((cached && cached.selected) || [])
+
+            voteData.vote.spec.isVoted = votedIds.length > 0
+            voteData.vote.spec.disabled = votedIds.length > 0
             voteData.vote.spec._uh_state = utils.calcVoteState(voteData.vote)
             voteData.vote.spec._uh_type = constants.VOTE_TYPES[voteData.vote.spec.type]
             voteData.vote.spec._startDateFormatter = utils.formatTime({
@@ -85,9 +90,9 @@ Component({
             voteData.vote.spec.options = voteData.vote.spec.options.map((option) => {
               option.value = option.id
               option.label = option.title
-              option.isVoted = this.checkIsVoted()
-              option.checked = this.handleCalcIsChecked(option)
-              option._uh_percent = utils.calcVotePercent(voteData.vote, option)
+              option.isVoted = votedIds.length > 0
+              option.checked = votedIds.includes(option.id)
+              option._uh_percent = this.calcOptionPercent(voteData, option)
               option.dataStr = JSON.stringify(option)
               return option
             })
@@ -115,13 +120,22 @@ Component({
           })
         })
     },
-    checkIsVoted () {
-      return cache.has(this.data.voteId)
-    },
-    handleCalcIsChecked (option) {
-      const data = cache.get(this.data.voteId)
-      if (!data) return false
-      return data.selected.includes(option.id)
+    // 选项百分比：PK 按两阵营票数之和归一化且合计恒为 100（对齐官方 vote-block），其余按总票数
+    calcOptionPercent (voteData, option) {
+      const vote = voteData.vote
+      const counts = (voteData.voteDataList && voteData.voteDataList.length
+        ? voteData.voteDataList
+        : (vote.stats && vote.stats.voteDataList)) || []
+      const count = (counts.find(x => x.id === option.id) || {}).voteCount || 0
+      if (vote.spec.type === 'pk') {
+        const optionIds = (vote.spec.options || []).map(x => x.id)
+        const sum = counts.reduce((total, item) => {
+          return optionIds.includes(item.id) ? total + (item.voteCount || 0) : total
+        }, 0)
+        return sum === 0 ? 50 : Math.round((count / sum) * 100)
+      }
+      const total = (vote.stats && vote.stats.voteCount) || 0
+      return total === 0 ? 0 : Math.round((count / total) * 100)
     },
     formatJsonStr (jsonStr) {
       return jsonStr ? JSON.parse(jsonStr) : {}
