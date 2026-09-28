@@ -1,0 +1,34 @@
+<view class="halo-portfolio-card {{loading}}">
+  <view class="badge">项目</view>
+  <view wx:if="{{loading !== 'success'}}" class="card-error" bind:tap="getData">
+    {{ loadingText }}
+  </view>
+  <block wx:else>
+    <view class="w-full flex">
+      <view wx:if="{{posterEmpty}}" class="poster">无封面</view>
+      <image wx:else class="poster" src="{{poster}}" mode="aspectFill" bind:error="onPosterError" />
+      <view class="box">
+        <view class="title text-overflow">{{ project.title }}</view>
+        <view wx:if="{{project.summary}}" class="summary text-overflow">{{ project.summary }}</view>
+        <view class="meta">
+          <text wx:if="{{project.featured}}" class="meta-featured">推荐</text>
+          <text wx:if="{{typeLabel}}" class="meta-type">{{ typeLabel }}</text>
+        </view>
+        <view wx:if="{{techStacks.length}}" class="tech-list">
+          <text wx:for="{{techStacks}}" wx:key="index" class="tech">{{ item }}</text>
+        </view>
+      </view>
+    </view>
+    <view class="btn-group">
+      <button
+        wx:for="{{linkButtons}}" wx:key="label"
+        class="btn" size="mini"
+        data-url="{{item.url}}" data-label="{{item.label}}"
+        bind:tap="handleCopy"
+      >
+        {{ item.label }}
+      </button>
+      <button class="btn" size="mini" bind:tap="onDetail">详情</button>
+    </view>
+  </block>
+</view>

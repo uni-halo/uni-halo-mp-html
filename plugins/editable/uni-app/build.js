@@ -554,7 +554,8 @@ module.exports = {
             .replace(/:style\s*=\s*"\(ctrl\[i\]/g, ':style="(ctrl[\'e\'+i]&&opts[5]!==\'simple\'?\'border:1px dashed black;padding:3px;\':\'\')+(ctrl[i]')
             .replace(/show-menu-by-longpress\s*=\s*"(\S+?)"\s*:image-menu-prevent\s*=\s*"(\S+?)"/, 'show-menu-by-longpress="!opts[5]&&$1" :image-menu-prevent="opts[5]||$2"')
             // 修改音视频
-            .replace('v-else-if="n.html"', 'v-else-if="n.html" :data-i="i" @tap="mediaTap"')
+            // 注意：v2.5.2 起 n.html 视图行自带 :data-i="i"，这里只补 @tap，避免重复属性导致模板编译失败
+            .replace('v-else-if="n.html"', 'v-else-if="n.html" @tap="mediaTap"')
             .replace('<video', '<video :show-center-play-btn="!opts[5]" @tap="mediaTap"')
             .replace('<audio ', '<audio @tap="mediaTap" ')
             .replace('<my-audio ', '<my-audio @onClick="mediaTap($event, i)" ')

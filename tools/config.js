@@ -7,7 +7,7 @@ module.exports = {
    */
   plugins: [
     // 按需打开注释即可
-    'audio',     // 音乐播放器
+    // 'audio',     // 音乐播放器（uni-app vue3 H5 下 onError 与 uni-app 自动导入 API 冲突导致编译产物非法，暂禁用）
     'editable',  // 内容编辑
     'emoji',     // 小表情
     'highlight', // 代码高亮
@@ -15,7 +15,7 @@ module.exports = {
     // 'latex',     // 解析 latex
     // 'search',    // 关键词搜索
     'style',     // 解析 style 标签
-    'txv-video', // 使用腾讯视频
+    // 'txv-video', // 使用腾讯视频（与 audio 一并禁用，旧版未启用；正文视频走原生 video 渲染）
     'img-cache', // 图片缓存
     // 'card',      // 卡片展示
     'uni-halo-douban-card', // 豆瓣卡片

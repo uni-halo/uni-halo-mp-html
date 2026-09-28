@@ -27,7 +27,16 @@ module.exports = {
    * 需要触发顶层组件的事件请使用 this.root.triggerEvent
    * @type {Object}
    */
-  methods: {},
+  methods: {
+    onVoteActions (e) {
+      const detail = e && e.detail ? e.detail : e
+      if (typeof this.root.triggerEvent === 'function') {
+        this.root.triggerEvent('uhe-vote-actions', detail)
+      } else {
+        this.root.$emit('uhe-vote-actions', detail)
+      }
+    }
+  },
   /**
    * @description 用于模板文件的 css 样式（将被添加到 src/node/node.wxss）
    * @type {String}
@@ -43,7 +52,7 @@ module.exports = {
    * @type {Object}
    */
   usingComponents: {
-    'halo-vote-card': '../halo-vote-card/halo-vote-card'
+    'uni-halo-vote-card': '../uni-halo-vote-card/uni-halo-vote-card'
   },
   /**
    * @description 自定义文件处理器
@@ -56,8 +65,11 @@ module.exports = {
     if (file.isBuffer()) {
       let content = file.contents.toString()
       if (file.path.includes('parser.js')) {
-        // componentName，这里的componentName需要改为 对应的原始html内容中对应的名称
+        // vote-block 加入信任标签与自闭合标签表
         content = content.replace(/trustTags\s*:\s*makeMap\('/, 'trustTags: makeMap(\'vote-block,').replace(/voidTags\s*:\s*makeMap\('/, 'voidTags: makeMap(\'vote-block,')
+      } else if (file.path.includes('mp-html.vue')) {
+        // 注册自定义事件，供宿主通过 @uhe-vote-actions 监听
+        content = content.replace(/emits\s*:\s*\[/, 'emits: [\'uhe-vote-actions\',')
       }
       file.contents = Buffer.from(content)
     }

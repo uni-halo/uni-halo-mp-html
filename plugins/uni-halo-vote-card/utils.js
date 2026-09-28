@@ -11,9 +11,8 @@ const utils = {
     const result = {}
     // 遍历要保留的 key
     for (const key of keys) {
-      // 仅当源对象包含该 key 时才添加（避免 undefined）
-      // eslint-disable-next-line no-prototype-builtins
-      if (obj.hasOwnProperty(key)) {
+      // 仅当源对象包含该 key 时才添加（避免 undefined）；attrs 为无原型对象，不能直接调 hasOwnProperty
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
         result[key] = obj[key]
       }
     }
@@ -112,8 +111,7 @@ const utils = {
       if (_dateTime == 'Invalid Date') {
         return ''
       }
-      // eslint-disable-next-line no-prototype-builtins
-      if (data.hasOwnProperty('f')) {
+      if (Object.prototype.hasOwnProperty.call(data, 'f')) {
         _fmt = data.f
       }
     }
