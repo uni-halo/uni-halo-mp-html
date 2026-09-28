@@ -1,0 +1,38 @@
+<view class="halo-douban-card {{ loading }}">
+    <view class="badge">豆瓣</view>
+    <view wx:if="{{loading !== 'success'}}" class="halo-douban-card-error" bind:tap="getData">
+        {{ loadingText }}
+    </view>
+    <block wx:else>
+        <view class="flex w-full">
+            <view wx:if="{{posterEmpty}}" class="poster round-4">无封面</view>
+            <image wx:else class="poster round-4" src="{{poster}}" mode="aspectFill"
+                   bind:tap="handlePreviewImage" bind:error="onPosterError"></image>
+            <view class="box">
+                <view>
+                    <view class="title text-overflow">{{ detail.spec.name }}</view>
+                    <view class="flex" style="align-items: center; margin-top: 12rpx">
+                        <text class="text-xs">评分：</text>
+                        <view class="stars"> {{stars}} </view>
+                        <text class="score">{{ detail.spec.score }}</text>
+                    </view>
+
+                    <view class="content text-overflow-2">{{ detail.spec.cardSubtitle }}</view>
+                    <view class="tag-list flex flex-wrap mt-4">
+                        <view class="tag orange">{{ types[detail.spec.type] }}</view>
+                        <view class="tag light-blue" wx:for="{{detail.spec.genres}}"
+                              wx:key="index">{{ item }}</view>
+                    </view>
+                </view>
+                <view class="btn-group">
+                    <button class="btn flex-grow-1 text-xs" type="primary" size="mini" bind:tap="handleCopyInfo"
+                            data-type="link">复制地址
+                    </button>
+                    <button class="btn flex-grow-1 text-xs" type="primary" size="mini" bind:tap="handleCopyInfo"
+                            data-type="info">复制信息
+                    </button>
+                </view>
+            </view>
+        </view>
+    </block>
+</view>

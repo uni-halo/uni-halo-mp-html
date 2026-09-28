@@ -1,0 +1,23 @@
+.halo-plugin-wrapper {
+    width: 100%;
+}
+
+.halo-plugin-status.error {
+    padding: 0;
+    border-style: dashed;
+    border-color: #e88080;
+    color: #e88080;
+    background-color: rgba(232, 128, 128, 0.075);
+}
+
+.halo-plugin-status.loading {
+    padding: 0;
+    border-style: dashed;
+    border-color: rgba(3, 174, 252, 1);
+    color: rgba(3, 174, 252, 1);
+    background-color: rgba(3, 174, 252, 0.075);
+}
+
+.halo-plugin-wrapper-error {
+    width: 100%;
+}

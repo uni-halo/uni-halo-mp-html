@@ -1,0 +1,167 @@
+<view class="halo-plugin-wrapper halo-plugin-status {{loading}}">
+    <view class="badge">投票</view>
+    <view wx:if="{{loading !== 'success'}}" class="halo-plugin-wrapper-error" bind:tap="getData">
+        {{ loadingText }}
+    </view>
+    <block wx:else>
+        <view class="vote-card-head flex flex-col">
+            <view class="flex justify-between">
+                <view class="flex items-center uh-gap-8">
+                    <view class="tag-badge orange round-4 text-xs">ID: {{ voteId }}</view>
+                    <view class="tag-badge light-blue round-4 text-xs">{{ vote.spec._uh_type }}</view>
+                    <view class="tag-badge round-4 text-xs {{vote.spec._uh_state.color}}">{{vote.spec._uh_state.state}}</view>
+                </view>
+                <view class="flex-shrink">
+                    <button wx:if="{{false}}" class="btn light-blue" type="primary"
+                            bind:tap="onVoteClick" data-vote="{{vote}}"
+                    >
+                        查看投票详情
+                    </button>
+                </view>
+            </view>
+            <view class="title"> 主题： {{ vote.spec.title }} </view>
+        </view>
+        <view class="vote-card-body">
+            <view wx:if="{{vote.spec.remark}}" class="remark text-xs">
+                {{vote.spec.remark}}
+            </view>
+
+            <block>
+                <!-- 单选 -->
+                <view wx:if="{{vote.spec.type==='single'}}" class="single">
+                    <view class="w-full flex flex-col uh-gap-8">
+                        <block wx:if="{{vote.spec.isVoted || vote.spec.hasEnded}}">
+                            <view wx:for="{{vote.spec.options}}" wx:for-item="option" wx:key="index"
+                                  class="is-voted-item {{option.checked?'selected':''}}"
+                                  style="--percent: {{ option._uh_percent }}%;">
+                                <view class="is-voted-item-content flex w-full flex-between uh-gap-4">
+                                    <view class="text-align-left flex-1 text-break">
+                                        {{option.title }}
+                                    </view>
+                                    <view class="flex-shrink ">
+                                        {{option._uh_percent }}%
+                                    </view>
+                                </view>
+                            </view>
+                        </block>
+                        <block wx:else>
+                            <view wx:for="{{vote.spec.options}}" wx:for-item="option" wx:key="index"
+                                  class="vote-select-option flex-1 w-full text-break {{option.checked?'light-blue':'grey-lighten-3'}}"
+                                  bind:tap="handleSelectSingleOption" data-option="{{option}}"
+                            >
+                                {{option.title }}
+                            </view>
+                        </block>
+                    </view>
+                </view>
+
+                <!-- 多选 -->
+                <view wx:elif="{{vote.spec.type==='multiple'}}" class="multiple">
+                    <view class="w-full flex flex-col uh-gap-8">
+                        <block wx:if="{{vote.spec.isVoted || vote.spec.hasEnded}}">
+                            <view wx:for="{{vote.spec.options}}" wx:for-item="option" wx:key="index"
+                                  class="is-voted-item {{option.checked?'selected':''}}"
+                                  style="--percent: {{ option._uh_percent}}%;">
+                                <view class="is-voted-item-content flex w-full flex-between uh-gap-4">
+                                    <view class="text-align-left flex-1 text-break">
+                                        {{option.title }}
+                                    </view>
+                                    <view class="flex-shrink ">
+                                        {{option._uh_percent }}%
+                                    </view>
+                                </view>
+                            </view>
+                        </block>
+                        <block wx:else>
+                            <view wx:for="{{vote.spec.options}}" wx:for-item="option" wx:key="index"
+                                  class="vote-select-option flex-1 w-full text-break {{option.checked?'light-blue':'grey-lighten-3'}}"
+                                  bind:tap="handleSelectCheckboxOption" data-option="{{option}}"
+                            >
+                                {{option.title }}
+                            </view>
+                        </block>
+                    </view>
+                </view>
+
+                <!-- PK -->
+                <view wx:elif="{{vote.spec.type==='pk'}}" class="pk">
+                    <view class="pk-container">
+                        <view wx:for="{{vote.spec.options }}" wx:for-item="option"
+                              wx:key="index" class="radio-item {{index===0?'radio-left':'radio-right'}}"
+                              style="width: {{option._uh_percent}}%;">
+                            <view class="option-item {{index===0?'option-item-left':'option-item-right'}}">
+                                {{option._uh_percent }}%
+                            </view>
+                        </view>
+                    </view>
+                    <view class="option-foot w-full flex flex-between uh-mt-12">
+                        <view class="w-full flex flex-col uh-gap-8">
+                            <block wx:if="{{vote.spec.isVoted || vote.spec.hasEnded}}">
+                                <view wx:for="{{vote.spec.options}}" wx:for-item="option" wx:key="index"
+                                      class="is-voted-item {{option.checked?'selected':''}}"
+                                      style="--percent: {{option._uh_percent}}%;">
+                                    <view class="is-voted-item-content flex w-full flex-between uh-gap-4">
+                                        <view class="text-align-left flex-1 text-break">
+                                            {{option.title }}
+                                        </view>
+                                        <view class="flex-shrink">
+                                            {{option._uh_percent }}%
+                                        </view>
+                                    </view>
+                                </view>
+                            </block>
+                            <block wx:else>
+                                <view wx:for="{{ vote.spec.options }}" wx:for-item="option" wx:key="index"
+                                      class="vote-select-option flex-1 w-full text-break {{option.checked?'light-blue':'grey-lighten-3'}}"
+                                      bind:tap="handleSelectSingleOption" data-option="{{option}}"
+                                >
+                                    选项{{ index + 1}}：{{option.title }}
+                                </view>
+                            </block>
+                        </view>
+                    </view>
+                </view>
+            </block>
+        </view>
+        <view class="vote-card-foot flex flex-between">
+            <view class="left flex">
+                <view wx:if="{{vote.spec.timeLimit==='permanent'}}" class="tag grey-darken-2 text-xs round-4">
+                    结束：永久有效
+                </view>
+                <view wx:else class="tag grey-darken-2 text-xs round-4">
+                    <block wx:if="{{vote.spec._state==='未开始'}}">
+                        开始：{{  vote.spec._startDateForamtter  }}
+                    </block>
+                    <block wx:else>结束：{{  vote.spec._endDateFormatter }}  </block>
+                </view>
+            </view>
+
+            <view class="right flex flex-end uh-gap-4">
+                <view class="tag grey-darken-2 text-xs round-4">{{ vote.stats.voteCount }}
+                    人已参与
+                </view>
+                <view wx:if="{{vote.spec.isVoted}}" class="tag grey-darken-2 text-xs round-4">已投票</view>
+            </view>
+        </view>
+
+        <view wx:if="{{submitForm.voteData.length!==0 && !vote.spec.isVoted}}"
+              class="box-border uh-mt-12 w-full uh-px-2">
+            <button wx:if="{{vote.spec._uh_state.state==='未开始'}}" type="primary" class="w-full btn"
+                    bind:tap="handleSubmitTip" data-tip="投票未开始">投票未开始
+            </button>
+            <button wx:elif="{{vote.spec._uh_state.state==='已结束'}}" type="primary"
+                    class="w-full btn"
+                    bind:tap="handleSubmitTip" data-tip="投票已结束">投票已结束
+            </button>
+            <button wx:elif="{{!vote.spec.canAnonymously}}" type="primary" class="w-full btn"
+                    bind:tap="handleSubmit">不支持匿名投票
+            </button>
+            <button wx:elif="{{submitForm.voteData.length===0}}" type="primary" class="w-full btn"
+                    bind:tap="handleSubmitTip" data-tip="请选择选项">提交投票（请选择选项）
+            </button>
+            <button wx:else type="primary" class="w-full btn" loading="{{submitLoading}}"
+                    disabled="{{submitLoading}}" bind:tap="handleSubmit">提交投票
+            </button>
+        </view>
+    </block>
+</view>

@@ -1,0 +1,8 @@
+<view class="halo-plugin-wrapper halo-plugin-status {{loading}}">
+    <view wx:if="{{loading !== 'success'}}" class="halo-plugin-wrapper-error" bind:tap="getData()">
+        {{ loadingText }}
+    </view>
+    <block wx:else>
+        显示插件结果 {{loadingText}}
+    </block>
+</view>
