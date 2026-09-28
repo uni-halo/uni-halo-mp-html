@@ -385,15 +385,13 @@ export default {
   width: 100%;
   box-sizing: border-box;
   position: relative;
-  margin: 24rpx 0;
+  margin: 12rpx 0;
   padding: 24rpx;
   border-radius: 16rpx;
   border: 2rpx solid var(--uh-primary);
-  background-color: rgba(255, 255, 255, 0.55);
-  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.75), 0 8rpx 32rpx rgba(90, 105, 200, 0.14);
-  backdrop-filter: blur(24rpx) saturate(160%);
-  -webkit-backdrop-filter: blur(24rpx) saturate(160%);
+  background-color: #ffffff;
   overflow: hidden;
+  line-height: 1.5;
 }
 
 /* ===== 三态（保留虚线状态卡设计） ===== */
@@ -534,7 +532,7 @@ export default {
   padding: 20rpx 32rpx;
   font-size: 24rpx;
   color: #111827;
-  border-radius: 12rpx;
+  border-radius: 24rpx;
   background-color: #f3f4f6;
   transition: all 0.1s ease-in-out;
 }
@@ -613,7 +611,7 @@ export default {
   padding: 16rpx 0;
   border-radius: 999rpx;
   background-color: var(--uh-primary);
-  border: 2rpx solid rgba(0, 0, 0, 0.06);
+  border: 2rpx solid rgba(255, 255, 255, 0.8);
   font-size: 24rpx;
   color: #111827;
 }

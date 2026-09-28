@@ -4,3 +4,5 @@ dev/
 yarn.lock
 *.yml
 *.psd
+
+dist/

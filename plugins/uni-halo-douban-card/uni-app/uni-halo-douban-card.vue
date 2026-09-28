@@ -177,7 +177,7 @@ export default {
   width: 100%;
   box-sizing: border-box;
   position: relative;
-  margin: 24rpx 0;
+  margin: 12rpx 0;
   padding: 24rpx;
   border-radius: 16rpx;
   border: 2rpx solid #f5c618;
@@ -234,7 +234,7 @@ export default {
 
 .poster {
   width: 176rpx;
-  height: 240rpx;
+  height: 230rpx;
   flex-shrink: 0;
   border-radius: 12rpx;
   overflow: hidden;
